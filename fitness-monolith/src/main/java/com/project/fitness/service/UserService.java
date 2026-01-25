@@ -7,6 +7,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import com.project.fitness.dto.RegisterRequest;
+import com.project.fitness.dto.UserReponse;
 import com.project.fitness.model.User;
 import com.project.fitness.repository.UserRepository;
 
@@ -18,10 +19,10 @@ public class UserService {
 
 	private final UserRepository userRepository ;
 	
-	public User register(RegisterRequest request) {
+	public UserReponse register(RegisterRequest request) {
 		
 		User user = new User(
-				"xx01",
+				null,
 				request.getFirstName(),
 				request.getPassword(),
 				request.getFirstName(),
@@ -31,7 +32,22 @@ public class UserService {
 				List.of(),
 				List.of()
 				);
-		return userRepository.save(user);
+		User savedUser = userRepository.save(user);
+		return maptoResponse(savedUser);
+	}
+
+	private UserReponse maptoResponse(User savedUser) {
+		
+		UserReponse response = new UserReponse();
+		response.setId(savedUser.getId());
+		response.setEmail(savedUser.getEmail());
+		response.setPassword(savedUser.getPassword());
+		response.setFirstName(savedUser.getFirstName());
+		response.setLastName(savedUser.getLastName());
+		response.setCreatedAt(savedUser.getCreatedAt());
+		response.setUpdatedAt(savedUser.getUpdatedAt());
+		return response;
+		
 	}
 
 }
