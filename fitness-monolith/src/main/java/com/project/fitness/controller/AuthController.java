@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.project.fitness.dto.RegisterRequest;
 import com.project.fitness.model.User;
 import com.project.fitness.service.UserService;
 
@@ -16,8 +17,8 @@ public class AuthController {
 	private final UserService userService;
 	public AuthController(UserService userService) { this.userService = userService; }
 	@PostMapping("/register")
-	public User register(@RequestBody User user) {
-		return userService.register(user);
+	public User register(@RequestBody RegisterRequest registerRequest) {
+		return userService.register(registerRequest);
 	}
 	
 
