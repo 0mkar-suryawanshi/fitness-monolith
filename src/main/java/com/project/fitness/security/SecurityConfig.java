@@ -15,27 +15,26 @@ import lombok.RequiredArgsConstructor;
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
-	
-	private final JwtAuthenticationFilter jwtAuthenticationFilter;
-    @Bean
-    SecurityFilterChain securityFilterChain(HttpSecurity http) {
 
-		http.csrf(AbstractHttpConfigurer::disable).authorizeHttpRequests(authorizeRequests -> authorizeRequests
-				.requestMatchers("/api/admin/**").hasRole("ADMIN")
-				.requestMatchers("/api/auth/**").permitAll()
-				.anyRequest().authenticated());
-		
-		
-		 http.addFilterBefore(jwtAuthenticationFilter, 
-                org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class);
-		
-		
+	private final JwtAuthenticationFilter jwtAuthenticationFilter;
+
+	@Bean
+	SecurityFilterChain securityFilterChain(HttpSecurity http) {
+
+		http.csrf(AbstractHttpConfigurer::disable)
+				.authorizeHttpRequests(authorizeRequests -> authorizeRequests.requestMatchers("/api/admin/**")
+						.hasRole("ADMIN").requestMatchers("/api/auth/**").permitAll()
+						.requestMatchers("/swagger-ui.html/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll().anyRequest()
+						.authenticated());
+
+		http.addFilterBefore(jwtAuthenticationFilter,
+				org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class);
+
 		return http.build();
 	}
 
-
-    @Bean
-    PasswordEncoder passwordEncoder() {
+	@Bean
+	PasswordEncoder passwordEncoder() {
 		return new BCryptPasswordEncoder();
 	}
 }

@@ -40,6 +40,7 @@ public class User {
 	private String lastName;
 	
 	@Enumerated(EnumType.STRING)
+	@Builder.Default
 	private UserRole role = UserRole.USER;
 	
 	
