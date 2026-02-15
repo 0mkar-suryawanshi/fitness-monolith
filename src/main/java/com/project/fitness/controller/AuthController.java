@@ -14,6 +14,8 @@ import com.project.fitness.model.User;
 import com.project.fitness.security.JwtUtils;
 import com.project.fitness.service.UserService;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/api/auth")
 
@@ -28,7 +30,7 @@ public class AuthController {
 	}
 
 	@PostMapping("/register")
-	public ResponseEntity<UserReponse> register(@RequestBody RegisterRequest registerRequest) {
+	public ResponseEntity<UserReponse> register(@Valid @RequestBody RegisterRequest registerRequest) {
 		return ResponseEntity.ok(userService.register(registerRequest));
 	}
 
