@@ -64,10 +64,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 		try {
 			filterChain.doFilter(request, response);
 		} catch (java.io.IOException e) {
-			// TODO Auto-generated catch block
+			
 			e.printStackTrace();
 		} catch (ServletException e) {
-			// TODO Auto-generated catch block
+			
 			e.printStackTrace();
 		}
 	}
