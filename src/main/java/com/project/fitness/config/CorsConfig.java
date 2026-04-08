@@ -7,44 +7,40 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-
+import java.util.Arrays;
 import java.util.List;
 
 @Configuration
 public class CorsConfig {
 
-    @Value("${frontend.url}")
-    private String frontendUrl;
+    // ✅ Dono (local + production) origins allow karne ke liye
+    @Value("${frontend.allowed-origins:http://localhost:5173,https://fintness-monolith.netlify.app}")
+    private String allowedOriginsStr;
 
     @PostConstruct
     public void logFrontendUrl() {
-        System.out.println(">>> CORS allowed origin: " + frontendUrl);
+        List<String> origins = Arrays.asList(allowedOriginsStr.split(","));
+        System.out.println(">>> CORS Allowed Origins: " + origins);
     }
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of(frontendUrl));
+        
+        List<String> origins = Arrays.asList(allowedOriginsStr.split(","));
+        configuration.setAllowedOrigins(origins);
+        
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(List.of("*"));
-        configuration.setAllowCredentials(true);
+        configuration.setAllowCredentials(true);     // agar cookies/auth use kar rahe ho
         configuration.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
+        source.registerCorsConfiguration("/**", configuration);   // sab endpoints pe
+        
         return source;
     }
-    
-    @Bean
-    public WebMvcConfigurer corsConfigurer() {
-        return new WebMvcConfigurer() {
-            @Override
-            public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/api")
-                        .allowedOrigins("https://fintness-monolith.netlify.app");
-            }
-        };
-    }
+
+    // ❌ Purana WebMvcConfigurer bean delete kar do (ya comment kar do)
+    // Yeh ab zarurat nahi hai kyuki CorsConfigurationSource already kaam kar raha hai
 }
