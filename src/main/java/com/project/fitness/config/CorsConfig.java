@@ -7,40 +7,30 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import java.util.Arrays;
 import java.util.List;
 
 @Configuration
 public class CorsConfig {
 
-    // ✅ Dono (local + production) origins allow karne ke liye
-    @Value("${frontend.allowed-origins:http://localhost:5173,https://fintness-monolith.netlify.app}")
-    private String allowedOriginsStr;
+    @Value("${frontend.url}")
+    private String frontendUrl;
 
     @PostConstruct
     public void logFrontendUrl() {
-        List<String> origins = Arrays.asList(allowedOriginsStr.split(","));
-        System.out.println(">>> CORS Allowed Origins: " + origins);
+        System.out.println(">>> CORS allowed origin: " + frontendUrl);
     }
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        
-        List<String> origins = Arrays.asList(allowedOriginsStr.split(","));
-        configuration.setAllowedOrigins(origins);
-        
+        configuration.setAllowedOrigins(List.of(frontendUrl));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(List.of("*"));
-        configuration.setAllowCredentials(true);     // agar cookies/auth use kar rahe ho
+        configuration.setAllowCredentials(true);
         configuration.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);   // sab endpoints pe
-        
+        source.registerCorsConfiguration("/**", configuration);
         return source;
     }
-
-    // ❌ Purana WebMvcConfigurer bean delete kar do (ya comment kar do)
-    // Yeh ab zarurat nahi hai kyuki CorsConfigurationSource already kaam kar raha hai
 }
