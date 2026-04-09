@@ -20,51 +20,59 @@ import jakarta.servlet.http.HttpServletResponse;
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    @Autowired
-    private JwtUtils jwtUtils;
+	@Autowired
+	private JwtUtils jwtUtils;
 
-    // ADD THIS METHOD
-    @Override
-    protected boolean shouldNotFilter(HttpServletRequest request) {
-        return request.getMethod().equalsIgnoreCase("OPTIONS");
-    }
+	
 
-    @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-            throws ServletException, IOException {
-        System.out.println("AuthTokenFilter Called");
-        try {
-            String jwt = parseJwt(request);
-            if (jwt != null && jwtUtils.validateJwtToken(jwt)) {
-                String userId = jwtUtils.getUserIdFromToken(jwt);
-                Claims claims = jwtUtils.getAllClaims(jwt);
-                @SuppressWarnings("unchecked")
-                List<String> roles = claims.get("roles", List.class);
-                System.out.println("ROLES: " + roles);
-                List<GrantedAuthority> authorities = List.of();
-                if (roles != null) {
-                    authorities = roles.stream()
-                        .map(role -> (GrantedAuthority) new SimpleGrantedAuthority("ROLE_" + role))
-                        .toList();
-                }
-                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userId,
-                        null, authorities);
-                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(authentication);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        try {
-            filterChain.doFilter(request, response);
-        } catch (java.io.IOException e) {
-            e.printStackTrace();
-        } catch (ServletException e) {
-            e.printStackTrace();
-        }
-    }
+	@Override
+	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+			throws ServletException, IOException {
+		System.out.println("AuthTokenFilter Called");
+		try {
+			String jwt = parseJwt(request);
 
-    private String parseJwt(HttpServletRequest request) {
-        return jwtUtils.getJwtFromHeader(request);
-    }
+			if (jwt != null && jwtUtils.validateJwtToken(jwt)) {
+				String userId = jwtUtils.getUserIdFromToken(jwt);
+
+
+				Claims claims = jwtUtils.getAllClaims(jwt);
+				@SuppressWarnings("unchecked")
+				List<String> roles = claims.get("roles", List.class);
+
+				System.out.println("ROLES: " + roles);
+
+				List<GrantedAuthority> authorities = List.of();
+				if (roles != null) {
+				    authorities = roles.stream()
+				        .map(role -> (GrantedAuthority) new SimpleGrantedAuthority("ROLE_" + role))
+				        .toList();
+				}
+				
+				
+				UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userId,
+						null, authorities);
+
+				authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+
+				SecurityContextHolder.getContext().setAuthentication(authentication);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		try {
+			filterChain.doFilter(request, response);
+		} catch (java.io.IOException e) {
+			
+			e.printStackTrace();
+		} catch (ServletException e) {
+			
+			e.printStackTrace();
+		}
+	}
+
+	private String parseJwt(HttpServletRequest request) {
+		return jwtUtils.getJwtFromHeader(request);
+	}
 }
